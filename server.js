@@ -23,6 +23,7 @@ var db
 mongoose.connect(configDB.url, (err, database) => {
   if (err) return console.log(err)
   db = database
+  
   require('./app/routes.js')(app, passport, db);
 }); // connect to our database
 
@@ -34,7 +35,7 @@ app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'))
-
+//above is various modules added to express.
 
 app.set('view engine', 'ejs'); // set up ejs for templating
 

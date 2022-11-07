@@ -27,18 +27,30 @@ module.exports = function(app, passport, db) {
 // message board routes ===============================================================
 
     app.post('/messages', (req, res) => {
-      db.collection('messages').save({name: req.body.name, msg: req.body.msg, thumbUp: 0, thumbDown:0}, (err, result) => {
-        if (err) return console.log(err)
+      db.collection('messages').insertMany([{name: req.body.name, msg: req.body.msg, thumbUp: 0, thumbDown:0}])
         console.log('saved to database')
         res.redirect('/profile')
       })
+    
+    app.put('/thumbUp', (req, res) => {
+        db.collection('messages')
+        .findOneAndUpdate({name: req.body.name, msg: req.body.msg,}, {
+          $set: {
+            thumbUp:req.body.thumbUp + 1
+          }
+        }, {
+          sort: {_id: -1},
+          upsert: true
+        }, (err, result) => {
+          if (err) return res.send(err)
+          res.send(result)
+        })
     })
-
-    app.put('/messages', (req, res) => {
+    app.put('/thumbDown', (req, res) => {
       db.collection('messages')
-      .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
+      .findOneAndUpdate({name: req.body.name, msg: req.body.msg,}, {
         $set: {
-          thumbUp:req.body.thumbUp + 1
+          thumbUp:req.body.thumbUp - 1
         }
       }, {
         sort: {_id: -1},
@@ -47,7 +59,8 @@ module.exports = function(app, passport, db) {
         if (err) return res.send(err)
         res.send(result)
       })
-    })
+  })
+
 
     app.delete('/messages', (req, res) => {
       db.collection('messages').findOneAndDelete({name: req.body.name, msg: req.body.msg}, (err, result) => {
